@@ -1,0 +1,11 @@
+---
+- name: Harden Linux Servers
+  hosts: all
+  become: true
+
+  roles:
+    - baseline
+    - ssh_hardening
+    - firewall
+    - patching
+

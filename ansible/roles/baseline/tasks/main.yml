@@ -1,0 +1,42 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/baseline
+- name: Set timezone
+  timezone:
+    name: UTC
+
+- name: Install base packages
+  apt:
+    name:
+      - vim
+      - curl
+      - htop
+      - ca-certificates
+    state: present
+    update_cache: yes
+
+- name: Disable unnecessary services
+  service:
+    name: "{{ item }}"
+    enabled: false
+    state: stopped
+  loop:
+    - ubuntu-advantage
+    - ua-reboot-cmds
+  ignore_errors: true
+
+- name: Apply sysctl hardening
+  copy:
+    dest: /etc/sysctl.d/99-hardening.conf
+    content: | 
+      net.ipv4.conf.all.rp_filter = 1
+      net.ipv4.conf.defaul.rp_filter = 1
+      net.ipv4.tcp_syncookies = 1
+      net.ipv4.conf.all.accept_redirects = 0
+      net.ipv4.conf.default.accept_redirects = 0
+      net.ipv4.conf.all.send_redirects = 0
+      net.ipv4.conf.default.send_redirects = 0
+      net.ipv4.icmp_echo_ignore_broadcasts = 1
+
+- name: Reload sysctl
+  command: sysctl --system
