@@ -4,8 +4,8 @@
   become: true
 
   roles:
+    - bootstrap
     - baseline
     - ssh_hardening
     - firewall
     - patching
-
