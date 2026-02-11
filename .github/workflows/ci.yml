@@ -41,7 +41,7 @@ jobs:
           python-version: '3.11'
       - name: Install Ansible + ansible-lint
         run: |
-          python -m pip insntall --upgrade pip
+          python -m pip install --upgrade pip
           pip install ansible ansible-lint
 
       - name: Ansible Lint
