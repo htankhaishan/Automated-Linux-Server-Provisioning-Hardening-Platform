@@ -1,0 +1,7 @@
+kinds:
+  - playbook: "**/playbooks/*.{yml,yaml}"
+  - tasks: "**/tasks/*.{yml,yaml}"
+  - handlers: "**/handlers/*.{yml,yaml}"
+  - vars: "**/{vars,defaults}/*.{yml,yaml}"
+  - meta: "**/meta/*.{yml,yaml}"
+  - yaml: "**/*.{yml,yaml}"
