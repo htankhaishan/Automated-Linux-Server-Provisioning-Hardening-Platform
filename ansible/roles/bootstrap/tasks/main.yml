@@ -1,22 +1,22 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/bootstrap
 - name: Create secadmin user
-  user:
+  ansible.builtin.user:
     name: secadmin
     shell: /bin/bash
     groups: sudo
-    append: yes
-    create_home: yes
+    append: true
+    create_home: true
 
 - name: Install SSH key for secadmin
-  authorized_key:
+  ansible.posix.authorized_key:
     user: secadmin
     state: present
     key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_ed25519.pub') }}"
 
 - name: Allow passwordless sudo for secadmin
-  copy:
+  ansible.builtin.copy:
     dest: /etc/sudoers.d/secadmin
     content: "secadmin ALL=(ALL) NOPASSWD:ALL\n"
     mode: "0440"
