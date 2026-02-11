@@ -53,7 +53,7 @@ jobs:
         working-directory: ansible
 
       - name: Ansible Dry Run
-        run: ansible-playbook playbooks/site.yml --check -i "localhost,"
+        run: ansible-playbook playbooks/site.yml --check -i "localhost," -c local
         working-directory: ansible
 
 
