@@ -1,27 +1,83 @@
-security:
-  name: Security Scanning
-  runs-on: ubuntu-latest
+name: Platform CI Pipeline
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
 
-    # --- tfsec Security Scan ---
-    - name: Run tfsec
-      uses: aquasecurity/tfsec-action@v1.0.3
-      with:
-        directory: terraform
+jobs:
 
-    # --- Checkov Security Scan ---
-    - name: Run Checkov
-      uses: bridgecrewio/checkov-action@v12
-      with:
-        directory: terraform
+  terraform:
+    name: Terraform Validation
+    runs-on: ubuntu-latest
 
-    # --- Trivy Infrastructure as Code Scan ---
-    - name: Run Trivy IaC Scan
-      uses: aquasecurity/trivy-action@v0.20.0
-      with:
-        scan-type: fs
-        scan-ref: .
-        severity: CRITICAL,HIGH
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format
+        run: terraform fmt -recursive -check
+
+      - name: Terraform Init
+        run: terraform init -backend=false
+        working-directory: terraform
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: terraform
+
+
+  ansible:
+    name: Ansible Lint + Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: sudo apt update && sudo apt install -y ansible ansible-lint
+
+      - name: Ansible Lint
+        run: ansible-lint
+        working-directory: ansible
+
+      - name: Ansible Syntax Check
+        run: ansible-playbook playbooks/site.yml --syntax-check
+        working-directory: ansible
+
+      - name: Ansible Dry Run
+        run: ansible-playbook playbooks/site.yml --check -i "localhost,"
+        working-directory: ansible
+
+
+  security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tfsec
+        run: |
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: tfsec scan
+        run: tfsec terraform/
+
+      - name: Checkov scan
+        run: checkov -d terraform/
+
+      - name: Trivy filesystem scan
+        run: trivy fs --exit-code 1 --severity HIGH,CRITICAL .
