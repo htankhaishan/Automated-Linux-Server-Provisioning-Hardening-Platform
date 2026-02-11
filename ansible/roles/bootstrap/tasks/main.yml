@@ -10,10 +10,13 @@
     create_home: true
 
 - name: Install SSH key for secadmin
+  vars:
+    secadmin_pubkey: "{{ lookup('ansible.builtin.file', lookup('ansible.builtin.env', 'HOME') + '/.ssh/id_ed25519.pub', errors='ignore') }}"
   ansible.posix.authorized_key:
     user: secadmin
     state: present
-    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_ed25519.pub') }}"
+    key: "{{ secadmin_pubkey }}"
+  when: secadmin_pubkey | length > 0
 
 - name: Allow passwordless sudo for secadmin
   ansible.builtin.copy:
