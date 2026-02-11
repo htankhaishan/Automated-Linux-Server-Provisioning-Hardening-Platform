@@ -35,8 +35,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Ansible
-        run: sudo apt update && sudo apt install -y ansible ansible-lint
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install Ansible + ansible-lint
+        run: |
+          python -m pip insntall --upgrade pip
+          pip install ansible ansible-lint
 
       - name: Ansible Lint
         run: ansible-lint
