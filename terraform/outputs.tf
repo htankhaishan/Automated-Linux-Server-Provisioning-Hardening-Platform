@@ -1,3 +1,3 @@
 output "vm_ip" {
-    value = multipass_instance.secvm.ipv4
-    }
+  value = multipass_instance.secvm.ipv4
+}

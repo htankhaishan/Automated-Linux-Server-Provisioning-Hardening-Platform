@@ -1,20 +1,20 @@
 terraform {
-    required_providers {
-        multipass = {
-            source = "larstobi/multipass"
-            version = "~> 1.4"
-            }
-        }
+  required_providers {
+    multipass = {
+      source  = "larstobi/multipass"
+      version = "~> 1.4"
     }
+  }
+}
 
 provider "multipass" {}
 
 resource "multipass_instance" "secvm" {
-    name = "secvm"
-    image = "22.04"
-    cpus = 1
-    memory = "1G"
-    disk = "5G"
+  name   = "secvm"
+  image  = "22.04"
+  cpus   = 1
+  memory = "1G"
+  disk   = "5G"
 }
 
 resource "null_resource" "bootstrap_ssh" {
